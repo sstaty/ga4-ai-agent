@@ -1,0 +1,18 @@
+[project]
+name = "ga4-ai-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "anthropic>=0.97.0",
+    "google-analytics-data>=0.21.0",
+    "python-dotenv>=1.2.2",
+    "rich>=15.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "ruff>=0.15.12",
+]
