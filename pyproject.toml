@@ -1,18 +1,27 @@
 [project]
 name = "ga4-ai-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI agent for Google Analytics 4 data analysis"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "anthropic>=0.97.0",
-    "google-analytics-data>=0.21.0",
+    "anthropic[mcp]>=0.97.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "pydantic>=2.11.0",
+    "pydantic-settings>=2.8.0",
     "python-dotenv>=1.2.2",
+    "google-analytics-data>=0.21.0",
+    "docker>=7.1.0",
     "rich>=15.0.0",
+    "analytics-mcp>=0.3.0",
+    "google-auth-oauthlib>=1.3.1",
 ]
 
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
+    "pytest-asyncio>=0.26.0",
+    "pytest-mock>=3.14.0",
     "ruff>=0.15.12",
 ]
