@@ -54,8 +54,8 @@ async def main() -> None:
             print(f"Available MCP tools: {tool_names}\n")
 
             question = (
-                f"How many sessions did GA4 property {settings.ga4_property_id} "
-                f"receive in the last 7 days? Just give the number."
+                f"How many active users did GA4 property {settings.ga4_property_id} "
+                f"receive in the last 28 days?"
             )
             print(f"Question: {question}\n")
 

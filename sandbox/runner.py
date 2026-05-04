@@ -19,7 +19,7 @@ def run_code(code: str) -> dict:
     """
     client = docker.from_env()
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
         f.write(code)
         code_path = f.name
 

@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str
     google_application_credentials: str
     ga4_property_id: str
+    model: str = "claude-sonnet-4-6"
 
 
 settings = Settings()
