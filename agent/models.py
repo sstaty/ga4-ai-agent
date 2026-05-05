@@ -1,8 +1,15 @@
+from typing import Any
+
 from pydantic import BaseModel
+
+
+class ToolCall(BaseModel):
+    name: str
+    input: dict
+    output: Any = None
 
 
 class AgentResponse(BaseModel):
     answer: str
-    data: list[dict] | None = None
-    tool_calls: list[str] = []
-    iterations: int
+    tool_calls: list[ToolCall] = []
+    error: str | None = None

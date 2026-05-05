@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GA4 Analytics Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 2cm; color: #333; }
+    h1 { color: #1a73e8; margin-bottom: 4px; }
+    h2 { color: #444; margin-top: 24px; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; }
+    .timestamp { color: #888; font-size: 0.85em; margin-bottom: 24px; }
+    .query { font-style: italic; color: #555; background: #f0f4ff;
+             padding: 10px 16px; border-radius: 2px; margin-bottom: 4px; }
+    .answer { font-size: 0.88em; background: #f8f9fa; padding: 14px 16px;
+              border-left: 4px solid #1a73e8; border-radius: 2px; margin-bottom: 24px; }
+    .answer p { margin: 0 0 8px; }
+    .answer p:last-child { margin-bottom: 0; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 12px; font-size: 0.9em;
+            page-break-inside: avoid; break-inside: avoid; }
+    thead tr { background: #1a73e8; color: #fff; }
+    th { padding: 8px 10px; text-align: left; }
+    td { padding: 6px 10px; border-bottom: 1px solid #dee2e6; }
+    tbody tr:nth-child(even) { background: #f8f9fa; }
+    .chart { margin: 8px 0 24px; page-break-inside: avoid; break-inside: avoid; }
+    .chart img { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <h1>GA4 Analytics Report</h1>
+  <p class="timestamp">Generated: {{ generated_at }}</p>
+
+  {% if query %}
+  <h2>Question</h2>
+  <div class="query">{{ query }}</div>
+  {% endif %}
+
+  <h2>Answer</h2>
+  <div class="answer">{{ answer_html | safe }}</div>
+
+  {% for ds in datasets %}
+  <h2>{{ ds.title }}</h2>
+  <table>
+    <thead>
+      <tr>{% for h in ds.headers %}<th>{{ h }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for row in ds.rows %}
+      <tr>{% for h in ds.headers %}<td>{{ row[h] if row[h] is not none else '' }}</td>{% endfor %}</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if ds.chart_b64 %}
+  <div class="chart">
+    <img src="data:image/png;base64,{{ ds.chart_b64 }}" alt="{{ ds.title }}">
+  </div>
+  {% endif %}
+  {% endfor %}
+</body>
+</html>

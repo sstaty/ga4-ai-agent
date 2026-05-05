@@ -8,7 +8,7 @@ from langfuse import Langfuse
 from mcp import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
-from agent.models import AgentResponse
+from agent.models import AgentResponse, ToolCall
 from agent.prompts import build_system_prompt
 from agent.tools import EXECUTE_PYTHON_TOOL
 from config import settings
@@ -35,17 +35,6 @@ def _init_langfuse() -> Langfuse | None:
 def _extract_mcp_text(result) -> str:
     parts = [item.text for item in result.content if hasattr(item, "text")]
     return "\n".join(parts) if parts else "(empty result)"
-
-
-def _try_parse_rows(text: str) -> list[dict] | None:
-    # Only the first parseable MCP result is stored; later GA4 calls won't overwrite raw_data.
-    try:
-        parsed = json.loads(text)
-        if isinstance(parsed, list) and all(isinstance(r, dict) for r in parsed):
-            return parsed
-    except (json.JSONDecodeError, TypeError):
-        pass
-    return None
 
 
 def _serialize_messages(messages: list) -> list[dict]:
@@ -119,8 +108,7 @@ async def run_agent(question: str) -> AgentResponse:
                 all_tools = mcp_tool_defs + [EXECUTE_PYTHON_TOOL]
 
                 messages: list = [{"role": "user", "content": question}]
-                tool_calls: list[str] = []
-                raw_data: list[dict] | None = None
+                tool_calls: list[ToolCall] = []
                 last_text = ""
                 event_loop = asyncio.get_running_loop()
                 agent_result: AgentResponse | None = None
@@ -170,9 +158,7 @@ async def run_agent(question: str) -> AgentResponse:
                     if response.stop_reason == "end_turn":
                         agent_result = AgentResponse(
                             answer=last_text or "No response generated.",
-                            data=raw_data,
                             tool_calls=tool_calls,
-                            iterations=iteration,
                         )
                         if iter_obs:
                             iter_obs.update(output={
@@ -192,7 +178,6 @@ async def run_agent(question: str) -> AgentResponse:
 
                             tool_name = block.name
                             tool_input = block.input
-                            tool_calls.append(tool_name)
                             print(f"[iter {iteration}] tool: {tool_name} | input keys: {list(tool_input.keys())}")
 
                             tool_obs = iter_obs.start_observation(
@@ -221,8 +206,6 @@ async def run_agent(question: str) -> AgentResponse:
                             elif tool_name in mcp_tool_names:
                                 mcp_result = await mcp_client.call_tool(tool_name, tool_input)
                                 content = _extract_mcp_text(mcp_result)
-                                if raw_data is None:
-                                    raw_data = _try_parse_rows(content)
                                 if tool_obs:
                                     tool_obs.update(output={"result": content})
                                     tool_obs.end()
@@ -233,6 +216,11 @@ async def run_agent(question: str) -> AgentResponse:
                                     tool_obs.update(output={"error": content})
                                     tool_obs.end()
 
+                            try:
+                                parsed_output = json.loads(content)
+                            except (json.JSONDecodeError, TypeError):
+                                parsed_output = content
+                            tool_calls.append(ToolCall(name=tool_name, input=tool_input, output=parsed_output))
                             tool_results.append({
                                 "type": "tool_result",
                                 "tool_use_id": block.id,
@@ -253,15 +241,12 @@ async def run_agent(question: str) -> AgentResponse:
                     status = "max_iterations"
                     agent_result = AgentResponse(
                         answer=last_text or "Max iterations reached without a final answer.",
-                        data=raw_data,
                         tool_calls=tool_calls,
-                        iterations=MAX_ITERATIONS,
                     )
 
                 trace_output = {
                     "answer": agent_result.answer,
-                    "iterations": agent_result.iterations,
-                    "tool_calls": agent_result.tool_calls,
+                    "tool_calls": [tc.model_dump() for tc in agent_result.tool_calls],
                 }
                 trace_metadata = {"status": status}
                 return agent_result
