@@ -1,3 +1,4 @@
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -7,7 +8,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str
     google_application_credentials: str
     ga4_property_id: str
-    model: str = "claude-haiku-4-5"
+    model: str = Field(default="claude-haiku-4-5", validation_alias="ANTHROPIC_MODEL")
     langfuse_public_key: str | None = None
     langfuse_secret_key: str | None = None
     langfuse_host: str = "https://cloud.langfuse.com"
