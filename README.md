@@ -89,6 +89,45 @@ uv run uvicorn api.main:app --reload
 
 ---
 
+## Usage
+
+### JSON response
+
+```bash
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What were the top 5 pages by views last 30 days?"}'
+```
+
+### PDF report
+
+```bash
+curl -X POST http://localhost:8000/query/pdf \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Show me daily sessions for the last 14 days"}' \
+  --output report.pdf
+```
+
+An optional `timeout` field controls the per-request deadline in seconds (default `120`):
+
+```json
+{"question": "...", "timeout": 60}
+```
+
+Returns HTTP 504 if the agent does not finish within the timeout.
+
+> **Windows users:** use `curl.exe` (bundled with Windows 10/11) or `Invoke-RestMethod` in PowerShell.
+
+Swagger UI is available at [http://localhost:8000/docs](http://localhost:8000/docs).
+
+---
+
+## Sample Output
+
+See [`docs/example_outputs/`](docs/example_outputs/) for a sample JSON response and PDF report.
+
+---
+
 ## Architecture
 
 ```
