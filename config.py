@@ -7,7 +7,10 @@ class Settings(BaseSettings):
     anthropic_api_key: str
     google_application_credentials: str
     ga4_property_id: str
-    model: str = "claude-sonnet-4-6"
+    model: str = "claude-haiku-4-5"
+    langfuse_public_key: str | None = None
+    langfuse_secret_key: str | None = None
+    langfuse_host: str = "https://cloud.langfuse.com"
 
 
 settings = Settings()
