@@ -77,6 +77,9 @@ uv run python scripts/verify_ga4.py
 
 # Check the Docker sandbox
 uv run python scripts/verify_sandbox.py
+
+# Check the agent:
+uv run python scripts/verify_agent.py
 ```
 
 ---
